@@ -56,7 +56,6 @@ private:
 
 // Alias
 using Point3 = Vec3;
-using Color = Vec3;
 
 // Vec3 operators
 inline std::ostream &operator<<(std::ostream &out, const Vec3 &v)

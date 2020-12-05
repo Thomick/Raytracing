@@ -3,19 +3,27 @@
 #include "Color.hpp"
 #include "Ray.hpp"
 
-bool hit_sphere(const Point3 &center, double radius, const Ray &r)
+double hit_sphere(const Point3 &center, double radius, const Ray &r)
 {
-    double a = dot(r.getDirection(), r.getDirection());
+    double a = r.getDirection().length_squared();
     Vec3 oc = r.getOrigin() - center;
-    double b = 2 * dot(r.getDirection(), oc);
-    double c = dot(oc, oc) - radius * radius;
-    return b * b - 4 * a * c >= 0;
+    double b = dot(r.getDirection(), oc);
+    double c = oc.length_squared() - radius * radius;
+    double discrim = b * b - a * c;
+    if (discrim >= 0)
+        return (-b - sqrt(discrim)) / a;
+    else
+        return -1.0;
 }
 
 Color ray_color(Ray &r)
 {
-    if (hit_sphere(Point3(0, 0, -1), 0.5, r))
-        return Color(1, 0, 0);
+    double s = hit_sphere(Point3(0, 0, 1), 0.5, r);
+    if (s > 0.0)
+    {
+        Vec3 normal = unit_vector(r.at(s) - Vec3(0, 0, 1));
+        return 0.5 * (normal + Color(1, 1, 1));
+    }
     Vec3 unit_dir = unit_vector(r.getDirection());
     double t = 0.5 * (unit_dir.y() + 1.0);
     return (1.0 - t) * (Color(1, 1, 1)) + t * Color(0.5, 0.8, 0.3);
