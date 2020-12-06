@@ -1,8 +1,6 @@
 #ifndef VEC3_H
 #define VEC3_H
 
-#include <cmath>
-#include <iostream>
 #include "Utilities.hpp"
 
 class Vec3
@@ -49,6 +47,12 @@ public:
     {
         return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
     }
+    bool near_zero()
+    {
+        const double eps = 1e-8;
+        return fabs(v[0]) < eps && fabs(v[1]) < eps && fabs(v[2]) < eps;
+    }
+
     inline static Vec3 random() { return Vec3(random_double(), random_double(), random_double()); }
     inline static Vec3 random(double min, double max) { return Vec3(random_double(min, max), random_double(min, max), random_double(min, max)); }
 
@@ -56,8 +60,9 @@ private:
     double v[3];
 };
 
-// Alias
+// Aliases
 using Point3 = Vec3;
+using Color = Vec3;
 
 // Vec3 operators
 inline std::ostream &operator<<(std::ostream &out, const Vec3 &v)
@@ -124,5 +129,6 @@ Vec3 random_in_hemisphere(const Vec3 &base)
         return -res;
     return res;
 }
+Vec3 reflect(const Vec3 &v, const Vec3 &n) { return v - 2 * dot(v, n) * n; }
 
 #endif // !VEC3_H

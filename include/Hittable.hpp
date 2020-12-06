@@ -1,7 +1,9 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-#include "Ray.hpp"
+#include "Utilities.hpp"
+
+class Material;
 
 struct hit_record
 {
@@ -9,6 +11,7 @@ struct hit_record
     Vec3 normal;
     double t;
     bool front_face;
+    shared_ptr<Material> mat_ptr;
 
     inline void set_face_normal(const Ray &r, const Vec3 &outward_normal)
     {

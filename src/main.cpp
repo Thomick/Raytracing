@@ -4,6 +4,7 @@
 #include "Hittable_list.hpp"
 #include "Sphere.hpp"
 #include "Camera.hpp"
+#include "Material.hpp"
 
 Color ray_color(const Ray &r, const Hittable_list &scene, int depth)
 {
@@ -12,13 +13,15 @@ Color ray_color(const Ray &r, const Hittable_list &scene, int depth)
     hit_record hrec;
     if (scene.hit(r, 0.0001, infinity, hrec)) // 0.0001 avoids hitting the same object multiple times due to floating point approximation
     {
-        Vec3 new_dir = hrec.normal + random_unit_vector(); // Lambertian distribution
-        //Vec3 new_dir = random_in_hemisphere(hrec.normal); // Uniform distribution
-        return 0.5 * ray_color(Ray(hrec.p, new_dir), scene, depth - 1);
+        Color attenuation;
+        Ray scattered_ray;
+        if (hrec.mat_ptr->scatter(r, hrec, attenuation, scattered_ray))
+            return attenuation * ray_color(scattered_ray, scene, depth - 1);
+        return Color(0, 0, 0);
     }
     Vec3 unit_dir = unit_vector(r.getDirection());
     double t = 0.5 * (unit_dir.y() + 1.0);
-    return (1.0 - t) * (Color(1, 1, 1)) + t * Color(0.5, 0.8, 0.3);
+    return (1.0 - t) * (Color(1, 1, 1)) + t * Color(0.2, 0.3, 1);
 }
 
 int main()
@@ -27,7 +30,7 @@ int main()
     const double aspect_ratio = 16.0 / 9.0;
     const int im_width = 400;
     const int im_height = (int)(im_width / aspect_ratio);
-    const int sample_per_pixel = 100;
+    const int sample_per_pixel = 500;
     const int max_depth = 50;
 
     //Camera
@@ -35,8 +38,15 @@ int main()
 
     // Scene
     Hittable_list scene;
-    scene.add(make_shared<Sphere>(Point3(0, 0, -1), 0.5));
-    scene.add(make_shared<Sphere>(Point3(0, -100.5, -1), 100));
+    auto material_ground = make_shared<Lambertian>(Color(0.3, 0.9, 0.3));
+    auto material_center = make_shared<Lambertian>(Color(1, 0, 0));
+    auto material_left = make_shared<Metal>(Color(0.5, 0.3, 0.7));
+    auto material_right = make_shared<Metal>(Color(1, 1, 0.2));
+
+    scene.add(make_shared<Sphere>(Point3(0, 0, -1), 0.5, material_center));
+    scene.add(make_shared<Sphere>(Point3(0, -100.5, -1), 100, material_ground));
+    scene.add(make_shared<Sphere>(Point3(-2, 0, -2), 0.5, material_left));
+    scene.add(make_shared<Sphere>(Point3(1, 0, -1), 0.5, material_right));
 
     std::cout
         << "P3" << std::endl
