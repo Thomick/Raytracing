@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <iostream>
-using std::sqrt;
+#include "Utilities.hpp"
 
 class Vec3
 {
@@ -49,6 +49,8 @@ public:
     {
         return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
     }
+    inline static Vec3 random() { return Vec3(random_double(), random_double(), random_double()); }
+    inline static Vec3 random(double min, double max) { return Vec3(random_double(min, max), random_double(min, max), random_double(min, max)); }
 
 private:
     double v[3];
@@ -101,6 +103,26 @@ inline Vec3 cross(const Vec3 &a, const Vec3 &b)
 inline Vec3 unit_vector(const Vec3 &v)
 {
     return v / v.length();
+}
+Vec3 random_in_unit_sphere()
+{
+    while (true)
+    {
+        Vec3 p = Vec3::random();
+        if (p.length_squared() <= 1)
+            return p;
+    }
+}
+Vec3 random_unit_vector()
+{
+    return unit_vector(random_in_unit_sphere());
+}
+Vec3 random_in_hemisphere(const Vec3 &base)
+{
+    Vec3 res = random_unit_vector();
+    if (dot(base, res) < 0)
+        return -res;
+    return res;
 }
 
 #endif // !VEC3_H

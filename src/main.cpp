@@ -5,12 +5,16 @@
 #include "Sphere.hpp"
 #include "Camera.hpp"
 
-Color ray_color(const Ray &r, const Hittable_list &scene)
+Color ray_color(const Ray &r, const Hittable_list &scene, int depth)
 {
+    if (depth <= 0)
+        return Color(0, 0, 0);
     hit_record hrec;
-    if (scene.hit(r, 0, infinity, hrec))
+    if (scene.hit(r, 0.0001, infinity, hrec)) // 0.0001 avoids hitting the same object multiple times due to floating point approximation
     {
-        return 0.5 * (hrec.normal + Color(1, 1, 1));
+        Vec3 new_dir = hrec.normal + random_unit_vector(); // Lambertian distribution
+        //Vec3 new_dir = random_in_hemisphere(hrec.normal); // Uniform distribution
+        return 0.5 * ray_color(Ray(hrec.p, new_dir), scene, depth - 1);
     }
     Vec3 unit_dir = unit_vector(r.getDirection());
     double t = 0.5 * (unit_dir.y() + 1.0);
@@ -24,6 +28,7 @@ int main()
     const int im_width = 400;
     const int im_height = (int)(im_width / aspect_ratio);
     const int sample_per_pixel = 100;
+    const int max_depth = 50;
 
     //Camera
     Camera camera;
@@ -40,7 +45,7 @@ int main()
 
     for (int i = im_height - 1; i >= 0; i--)
     {
-        if (i % 50 == 0)
+        if (i % 20 == 0)
             std::cerr << i << " lines remaining -> " << (1 - (double)i / im_height) * 100 << "%" << std::endl;
         for (int j = 0; j < im_width; j++)
         {
@@ -49,7 +54,7 @@ int main()
             {
                 double v = (i + random_double()) / im_height;
                 double u = (j + random_double()) / im_width;
-                pixel_color += ray_color(camera.get_ray(u, v), scene);
+                pixel_color += ray_color(camera.get_ray(u, v), scene, max_depth);
             }
             write_color(std::cout, pixel_color, sample_per_pixel);
         }
