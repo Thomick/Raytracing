@@ -12,7 +12,7 @@ public:
     Point3 getOrigin() const { return origin; }
     Vec3 getDirection() const { return dir; }
 
-    Point3 at(double t) { return origin + t * dir; }
+    Point3 at(double t) const { return origin + t * dir; }
 
 private:
     Point3 origin;

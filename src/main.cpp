@@ -1,28 +1,15 @@
 #include <iostream>
-#include "Vec3.hpp"
+#include "Utilities.hpp"
 #include "Color.hpp"
-#include "Ray.hpp"
+#include "Hittable_list.hpp"
+#include "Sphere.hpp"
 
-double hit_sphere(const Point3 &center, double radius, const Ray &r)
+Color ray_color(Ray &r, const Hittable_list &scene)
 {
-    double a = r.getDirection().length_squared();
-    Vec3 oc = r.getOrigin() - center;
-    double b = dot(r.getDirection(), oc);
-    double c = oc.length_squared() - radius * radius;
-    double discrim = b * b - a * c;
-    if (discrim >= 0)
-        return (-b - sqrt(discrim)) / a;
-    else
-        return -1.0;
-}
-
-Color ray_color(Ray &r)
-{
-    double s = hit_sphere(Point3(0, 0, 1), 0.5, r);
-    if (s > 0.0)
+    hit_record hrec;
+    if (scene.hit(r, 0, infinity, hrec))
     {
-        Vec3 normal = unit_vector(r.at(s) - Vec3(0, 0, 1));
-        return 0.5 * (normal + Color(1, 1, 1));
+        return 0.5 * (hrec.normal + Color(1, 1, 1));
     }
     Vec3 unit_dir = unit_vector(r.getDirection());
     double t = 0.5 * (unit_dir.y() + 1.0);
@@ -36,6 +23,11 @@ int main()
     const int im_width = 400;
     const int im_height = (int)(im_width / aspect_ratio);
 
+    // Scene
+    Hittable_list scene;
+    scene.add(make_shared<Sphere>(Point3(0, 0, -1), 0.5));
+    scene.add(make_shared<Sphere>(Point3(0, -100.5, -1), 100));
+
     // Camera and viewport
     double viewport_height = 2;
     double viewport_width = viewport_height * aspect_ratio;
@@ -44,7 +36,7 @@ int main()
     Point3 origin = Point3(0, 0, 0);
     Vec3 vertical = Vec3(0, viewport_height, 0);
     Vec3 horizontal = Vec3(viewport_width, 0, 0);
-    Point3 lower_left_corner = -horizontal / 2 + -vertical / 2 + focal_length * Vec3(0, 0, 1);
+    Point3 lower_left_corner = origin - horizontal / 2 - vertical / 2 - Vec3(0, 0, focal_length);
 
     std::cout
         << "P3" << std::endl
@@ -59,9 +51,9 @@ int main()
         {
             double v = (double)(i) / im_height;
             double u = (double)(j) / im_width;
-            Vec3 dir = lower_left_corner + v * vertical + u * horizontal - origin;
+            Vec3 dir = lower_left_corner + v * vertical + u * horizontal;
             Ray r(origin, dir);
-            Color pix_color = ray_color(r);
+            Color pix_color = ray_color(r, scene);
             write_color(std::cout, pix_color);
         }
     }
