@@ -130,5 +130,12 @@ Vec3 random_in_hemisphere(const Vec3 &base)
     return res;
 }
 Vec3 reflect(const Vec3 &v, const Vec3 &n) { return v - 2 * dot(v, n) * n; }
+Vec3 refract(const Vec3 &uv, const Vec3 &n, double ni_over_nt) // uv is a unit vector
+{                                                              // ni_over_nt indice of the incident material over ind of the material in which the ray is transmited
+    double costheta = fmin(dot(uv, n), 1.0);
+    Vec3 perpendicular = ni_over_nt * (uv - costheta * n);
+    Vec3 parallel = -sqrt(fabs(1 - perpendicular.length_squared())) * n;
+    return perpendicular + parallel;
+}
 
 #endif // !VEC3_H
