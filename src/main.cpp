@@ -5,6 +5,42 @@
 #include "Sphere.hpp"
 #include "Camera.hpp"
 #include "Material.hpp"
+#include "Space_sampling.hpp"
+
+void generate_random_spherefield(const Point3 &origin, const Vec3 &field_size, double min_dist, double radius, Hittable_list &scene)
+{
+    vector<Point3> ball_pos;
+    poisson_sphere_sampling(origin, field_size, min_dist, ball_pos);
+    for (auto pos : ball_pos)
+    {
+        double rand_mat = random_double();
+        Color rand_color = Color::random();
+        if (rand_mat < 0.6)
+        {
+            auto mat = make_shared<Lambertian>(rand_color);
+            scene.add(make_shared<Sphere>(pos, radius, mat));
+        }
+        else if (rand_mat < 0.8)
+        {
+            double rand_fuzz = random_double();
+            auto mat = make_shared<Metal>(rand_color, rand_fuzz);
+            scene.add(make_shared<Sphere>(pos, radius, mat));
+        }
+        else if (rand_mat < 0.9)
+        {
+            double rand_fuzz = random_double();
+            auto mat = make_shared<Dielectric>(rand_color, 1.5, rand_fuzz);
+            scene.add(make_shared<Sphere>(pos, radius, mat));
+        }
+        else
+        {
+            double rand_fuzz = random_double();
+            auto mat = make_shared<Dielectric>(rand_color, 1.5, rand_fuzz);
+            scene.add(make_shared<Sphere>(pos, radius, mat));
+            scene.add(make_shared<Sphere>(pos, -(radius - 0.1), mat));
+        }
+    }
+}
 
 Color ray_color(const Ray &r, const Hittable_list &scene, int depth)
 {
@@ -30,30 +66,21 @@ int main()
     const double aspect_ratio = 16.0 / 9.0;
     const int im_width = 400;
     const int im_height = (int)(im_width / aspect_ratio);
-    const int sample_per_pixel = 500;
+    const int sample_per_pixel = 100;
     const int max_depth = 50;
 
     //Camera
-    Point3 look_from(3, 1, -3);
+    Point3 look_from(0, 0, 0);
     Point3 look_at(0, 0, -1);
     Vec3 vup(0, 1, 0);
-    double vfov = 30;
-    double aperture = 0.1;
-    double focus_dist = dot(unit_vector(look_from - look_at), look_from - Point3(1, 0, -1));
+    double vfov = 90;
+    double aperture = 0;
+    double focus_dist = 1;
     Camera camera(look_from, look_at, vup, aspect_ratio, vfov, aperture, focus_dist);
 
     // Scene
     Hittable_list scene;
-    auto material_ground = make_shared<Lambertian>(Color(0.3, 0.9, 0.3));
-    auto material_center = make_shared<Lambertian>(Color(1, 0, 0));
-    auto material_left = make_shared<Dielectric>(Color(1, 0.9, 0.9), 1.5, 0);
-    auto material_right = make_shared<Metal>(Color(1, 1, 0.2), 0.7);
-
-    scene.add(make_shared<Sphere>(Point3(0, 0, -1), 0.5, material_center));
-    scene.add(make_shared<Sphere>(Point3(0, -100.5, -1), 100, material_ground));
-    scene.add(make_shared<Sphere>(Point3(-1, 0, -1), 0.5, material_left));
-    scene.add(make_shared<Sphere>(Point3(-1, 0, -1), -0.4, material_left));
-    scene.add(make_shared<Sphere>(Point3(1, 0, -1), 0.5, material_right));
+    generate_random_spherefield(Point3(-7, -7, -5), Vec3(14, 14, 7), 2, 0.5, scene);
 
     std::cout
         << "P3" << std::endl
@@ -62,7 +89,7 @@ int main()
 
     for (int i = im_height - 1; i >= 0; i--)
     {
-        if (i % 20 == 0)
+        if (i % 1 == 0)
             std::cerr << i << " lines remaining -> " << (1 - (double)i / im_height) * 100 << "%" << std::endl;
         for (int j = 0; j < im_width; j++)
         {

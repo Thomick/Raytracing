@@ -9,9 +9,9 @@ public:
     Vec3() : v{0, 0, 0} {}
     Vec3(double v0, double v1, double v2) : v{v0, v1, v2} {}
 
-    double x() { return v[0]; }
-    double y() { return v[1]; }
-    double z() { return v[2]; }
+    double x() const { return v[0]; }
+    double y() const { return v[1]; }
+    double z() const { return v[2]; }
 
     Vec3 operator-() const { return Vec3(-v[0], -v[1], -v[2]); }
     double operator[](int i) const { return v[i]; }
