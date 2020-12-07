@@ -113,7 +113,7 @@ Vec3 random_in_unit_sphere()
 {
     while (true)
     {
-        Vec3 p = Vec3::random();
+        Vec3 p = Vec3::random(-1, 1);
         if (p.length_squared() <= 1)
             return p;
     }

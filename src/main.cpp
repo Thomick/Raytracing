@@ -34,10 +34,11 @@ int main()
     const int max_depth = 50;
 
     //Camera
-    Camera camera;
+    Camera camera(aspect_ratio, 90);
 
     // Scene
     Hittable_list scene;
+    /*
     auto material_ground = make_shared<Lambertian>(Color(0.3, 0.9, 0.3));
     auto material_center = make_shared<Lambertian>(Color(1, 0, 0));
     auto material_left = make_shared<Dielectric>(Color(1, 1, 1), 1.5, 0);
@@ -47,6 +48,13 @@ int main()
     scene.add(make_shared<Sphere>(Point3(0, -100.5, -1), 100, material_ground));
     scene.add(make_shared<Sphere>(Point3(-1, 0, -1), 0.5, material_left));
     scene.add(make_shared<Sphere>(Point3(1, 0, -1), 0.5, material_right));
+    */
+    auto material_left = make_shared<Lambertian>(Color(1, 0, 0));
+    auto material_right = make_shared<Lambertian>(Color(0, 1, 0));
+    double R = cos(pi / 4);
+
+    scene.add(make_shared<Sphere>(Point3(-R, 0, -1), R, material_left));
+    scene.add(make_shared<Sphere>(Point3(R, 0, -1), R, material_right));
 
     std::cout
         << "P3" << std::endl

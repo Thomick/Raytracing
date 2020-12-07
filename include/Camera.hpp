@@ -12,10 +12,11 @@ private:
     Point3 lower_left_corner;
 
 public:
-    Camera()
+    Camera(double aspect_ratio, double vfov) // vfov = vertical fied of view
     {
-        double aspect_ratio = 16.0 / 9.0;
-        double viewport_height = 2;
+        double theta = degrees_to_radians(vfov);
+        double h = tan(theta / 2);
+        double viewport_height = 2 * h;
         double viewport_width = viewport_height * aspect_ratio;
         double focal_length = 1;
 

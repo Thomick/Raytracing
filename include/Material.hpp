@@ -20,7 +20,7 @@ public:
     virtual bool scatter(const Ray &ray_in, const hit_record &hrec, Color &attenuation, Ray &ray_scattered) const override
     {
         attenuation = albedo;
-        Vec3 scatter_dir = hrec.normal + random_in_unit_sphere(); // Lambertian distribution
+        Vec3 scatter_dir = hrec.normal + random_unit_vector(); // Lambertian distribution
         //Vec3 scatter_dir = random_in_hemisphere(hrec.normal); // Uniform distribution
         if (scatter_dir.near_zero()) // the two vectors cancel out
             scatter_dir = hrec.normal;
