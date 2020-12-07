@@ -129,6 +129,15 @@ Vec3 random_in_hemisphere(const Vec3 &base)
         return -res;
     return res;
 }
+Vec3 random_in_unit_disk()
+{
+    while (true)
+    {
+        Vec3 p = Vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        if (p.length_squared() <= 1)
+            return p;
+    }
+}
 Vec3 reflect(const Vec3 &v, const Vec3 &n) { return v - 2 * dot(v, n) * n; }
 Vec3 refract(const Vec3 &uv, const Vec3 &n, double ni_over_nt) // uv is a unit vector
 {                                                              // ni_over_nt indice of the incident material over ind of the material in which the ray is transmited

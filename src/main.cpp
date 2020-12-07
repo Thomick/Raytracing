@@ -34,27 +34,26 @@ int main()
     const int max_depth = 50;
 
     //Camera
-    Camera camera(aspect_ratio, 90);
+    Point3 look_from(3, 1, -3);
+    Point3 look_at(0, 0, -1);
+    Vec3 vup(0, 1, 0);
+    double vfov = 30;
+    double aperture = 0.1;
+    double focus_dist = dot(unit_vector(look_from - look_at), look_from - Point3(1, 0, -1));
+    Camera camera(look_from, look_at, vup, aspect_ratio, vfov, aperture, focus_dist);
 
     // Scene
     Hittable_list scene;
-    /*
     auto material_ground = make_shared<Lambertian>(Color(0.3, 0.9, 0.3));
     auto material_center = make_shared<Lambertian>(Color(1, 0, 0));
-    auto material_left = make_shared<Dielectric>(Color(1, 1, 1), 1.5, 0);
-    auto material_right = make_shared<Metal>(Color(1, 1, 0.2), 0.9);
+    auto material_left = make_shared<Dielectric>(Color(1, 0.9, 0.9), 1.5, 0);
+    auto material_right = make_shared<Metal>(Color(1, 1, 0.2), 0.7);
 
     scene.add(make_shared<Sphere>(Point3(0, 0, -1), 0.5, material_center));
     scene.add(make_shared<Sphere>(Point3(0, -100.5, -1), 100, material_ground));
     scene.add(make_shared<Sphere>(Point3(-1, 0, -1), 0.5, material_left));
+    scene.add(make_shared<Sphere>(Point3(-1, 0, -1), -0.4, material_left));
     scene.add(make_shared<Sphere>(Point3(1, 0, -1), 0.5, material_right));
-    */
-    auto material_left = make_shared<Lambertian>(Color(1, 0, 0));
-    auto material_right = make_shared<Lambertian>(Color(0, 1, 0));
-    double R = cos(pi / 4);
-
-    scene.add(make_shared<Sphere>(Point3(-R, 0, -1), R, material_left));
-    scene.add(make_shared<Sphere>(Point3(R, 0, -1), R, material_right));
 
     std::cout
         << "P3" << std::endl
